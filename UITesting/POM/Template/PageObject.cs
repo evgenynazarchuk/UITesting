@@ -16,28 +16,33 @@ namespace UITesting.POM.Template
             Page = page;
         }
 
-        public virtual PageObject Wait()
+        public virtual async Task<PageObject> WaitPageLoadAsync()
         {
+            await Task.CompletedTask;
             return this;
         }
 
-        public virtual PageObject WaitAngular()
+        public virtual async Task<PageObject> WaitAngular()
         {
+            await Task.CompletedTask;
             return this;
         }
 
-        public virtual PageObject WaitAnimation()
+        public virtual async Task<PageObject> WaitAnimation()
         {
+            await Task.CompletedTask;
             return this;
         }
 
-        public virtual PageObject WaitJQuery()
+        public virtual async Task<PageObject> WaitJQuery()
         {
+            await Task.CompletedTask;
             return this;
         }
 
-        public virtual PageObject TakeScreenshot()
+        public virtual async Task<PageObject> TakeScreenshot()
         {
+            await Task.CompletedTask;
             return this;
         }
     }

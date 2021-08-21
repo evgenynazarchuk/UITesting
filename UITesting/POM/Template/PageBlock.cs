@@ -38,7 +38,7 @@ namespace UITesting.POM.Template
         {
             IElementHandle? blockHandle;
 
-            this.PageObject.Wait();
+            await this.WaitAsync();
 
             if (this.ParentPageBlock is null)
             {
@@ -50,12 +50,17 @@ namespace UITesting.POM.Template
                 blockHandle = await parentHandle.QuerySelectorAsync(this.BlockSelector);
             }
 
-            return blockHandle ?? throw new ApplicationException($"Block not found");
+            if (blockHandle is null)
+            {
+                throw new ApplicationException($"Block not found");
+            }
+
+            return blockHandle;
         }
 
         public virtual async Task ClickAsync()
         {
-            this.PageObject.Wait();
+            await this.WaitAsync();
 
             IElementHandle blockHandle = await this.GetBlockHandleAsync();
             await blockHandle.ClickAsync();
@@ -63,15 +68,15 @@ namespace UITesting.POM.Template
 
         public virtual async Task TypeAsync(string text)
         {
-            this.PageObject.Wait();
+            await this.WaitAsync();
 
             IElementHandle blockHandle = await this.GetBlockHandleAsync();
             await blockHandle.TypeAsync(text);
         }
 
-        public virtual async Task ClickAsync(string elementSelector)
+        protected virtual async Task ClickAsync(string elementSelector)
         {
-            this.PageObject.Wait();
+            await this.WaitAsync();
 
             IElementHandle blockHandle = await this.GetBlockHandleAsync();
             IElementHandle? elementHandle = await blockHandle.QuerySelectorAsync(elementSelector);
@@ -86,9 +91,9 @@ namespace UITesting.POM.Template
             }
         }
 
-        public virtual async Task TypeAsync(string elementSelector, string text)
+        protected virtual async Task TypeAsync(string elementSelector, string text)
         {
-            this.PageObject.Wait();
+            await this.WaitAsync();
 
             IElementHandle blockHandle = await this.GetBlockHandleAsync();
             IElementHandle? elementHandle = await blockHandle.QuerySelectorAsync(elementSelector);
@@ -101,6 +106,26 @@ namespace UITesting.POM.Template
             {
                 throw new ApplicationException("Element not found");
             }
+        }
+
+        private async Task<PageBlock<PageObjectType>> WaitAsync()
+        {
+            if (this.PageObject is null)
+            {
+                await WaitPageLoadAsync();
+            }
+            else
+            {
+                await this.PageObject.WaitPageLoadAsync();
+            }
+
+            return this;
+        }
+
+        protected virtual async Task<PageBlock<PageObjectType>> WaitPageLoadAsync()
+        {
+            await Task.CompletedTask;
+            return this;
         }
     }
 }
