@@ -108,7 +108,7 @@ namespace UITesting.POM.Template
             }
         }
 
-        private async Task<PageBlock<PageObjectType>> WaitAsync()
+        protected async Task<PageBlock<PageObjectType>> WaitAsync()
         {
             if (this.PageObject is null)
             {
