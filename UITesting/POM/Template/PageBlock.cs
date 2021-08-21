@@ -12,7 +12,7 @@ namespace UITesting.POM.Template
     {
         public readonly IPage Page;
 
-        public readonly PageBlock<PageObjectType> ParentPageBlock;
+        public readonly PageBlock<PageObjectType>? ParentPageBlock;
 
         public readonly PageObjectType PageObject;
 
@@ -22,7 +22,7 @@ namespace UITesting.POM.Template
         {
             this.Page = pageObject.Page;
             this.PageObject = pageObject;
-            this.ParentPageBlock = this;
+            this.ParentPageBlock = null;
             this.BlockSelector = blockSelector;
         }
 
@@ -36,38 +36,27 @@ namespace UITesting.POM.Template
 
         public async Task<IElementHandle> GetBlockHandleAsync()
         {
-            if (this.ParentPageBlock == this)
-            {
-                var blockHandle = await this.Page.QuerySelectorAsync(this.BlockSelector);
+            IElementHandle? blockHandle;
 
-                if (blockHandle is not null)
-                {
-                    return blockHandle;
-                }
-                else
-                {
-                    throw new ApplicationException();
-                }
+            this.PageObject.Wait();
+
+            if (this.ParentPageBlock is null)
+            {
+                blockHandle = await this.Page.QuerySelectorAsync(this.BlockSelector);
             }
             else
             {
                 IElementHandle parentHandle = await ParentPageBlock.GetBlockHandleAsync();
-                var blockHandle = await parentHandle.QuerySelectorAsync(this.BlockSelector);
-
-                if (blockHandle is not null)
-                {
-                    return blockHandle;
-                }
-                else
-                {
-                    throw new ApplicationException();
-                }
+                blockHandle = await parentHandle.QuerySelectorAsync(this.BlockSelector);
             }
+
+            return blockHandle ?? throw new ApplicationException($"Block not found");
         }
 
         public virtual async Task ClickAsync()
         {
             this.PageObject.Wait();
+
             IElementHandle blockHandle = await this.GetBlockHandleAsync();
             await blockHandle.ClickAsync();
         }
@@ -75,6 +64,7 @@ namespace UITesting.POM.Template
         public virtual async Task TypeAsync(string text)
         {
             this.PageObject.Wait();
+
             IElementHandle blockHandle = await this.GetBlockHandleAsync();
             await blockHandle.TypeAsync(text);
         }
@@ -82,34 +72,34 @@ namespace UITesting.POM.Template
         public virtual async Task ClickAsync(string elementSelector)
         {
             this.PageObject.Wait();
+
             IElementHandle blockHandle = await this.GetBlockHandleAsync();
-            var elementHandle = await blockHandle.QuerySelectorAsync(elementSelector);
+            IElementHandle? elementHandle = await blockHandle.QuerySelectorAsync(elementSelector);
 
             if (elementHandle is not null)
             {
-                IElementHandle blockElementHandle = elementHandle;
-                await blockElementHandle.ClickAsync();
+                await elementHandle.ClickAsync();
             }
             else
             {
-                throw new ApplicationException();
+                throw new ApplicationException("Element not found");
             }
         }
 
         public virtual async Task TypeAsync(string elementSelector, string text)
         {
             this.PageObject.Wait();
+
             IElementHandle blockHandle = await this.GetBlockHandleAsync();
-            var elementHandle = await blockHandle.QuerySelectorAsync(elementSelector);
+            IElementHandle? elementHandle = await blockHandle.QuerySelectorAsync(elementSelector);
 
             if (elementHandle is not null)
             {
-                IElementHandle blockElementHandle = elementHandle;
-                await blockElementHandle.TypeAsync(text);
+                await elementHandle.TypeAsync(text);
             }
             else
             {
-                throw new ApplicationException();
+                throw new ApplicationException("Element not found");
             }
         }
     }
